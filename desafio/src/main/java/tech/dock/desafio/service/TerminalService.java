@@ -3,16 +3,16 @@ package tech.dock.desafio.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import tech.dock.desafio.model.Transacao;
-import tech.dock.desafio.repository.TransacaoRepository;
+import tech.dock.desafio.model.Terminal;
+import tech.dock.desafio.repository.TerminalRepository;
 
 @Service
-public class TransacaoService {
+public class TerminalService {
 	
 	@Autowired
-	private TransacaoRepository repository;
+	private TerminalRepository repository;
 	
-	public Transacao findById(Integer id) {
+	public Terminal findById(Integer id) {
 		return this.repository.findById(id).orElse(null);
 	}
 	

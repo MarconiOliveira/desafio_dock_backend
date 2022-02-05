@@ -1,0 +1,1 @@
+alter table tb_terminal alter column ptid integer;

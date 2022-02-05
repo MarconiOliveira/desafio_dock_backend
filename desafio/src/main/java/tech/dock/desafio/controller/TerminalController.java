@@ -1,5 +1,7 @@
 package tech.dock.desafio.controller;
 
+import javax.validation.ValidationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import tech.dock.desafio.model.Transacao;
-import tech.dock.desafio.service.TransacaoService;
+import tech.dock.desafio.dto.TerminalDTO;
+import tech.dock.desafio.model.Terminal;
+import tech.dock.desafio.service.TerminalService;
 
 @RestController
 @RequestMapping("/v1/transacoes")
-public class TransacaoController {
+public class TerminalController {
 	
 	/*
 	 * Não estou usando o MediaType.TEXT_HTML_VALUE(text/html) porque é 
@@ -24,7 +27,7 @@ public class TransacaoController {
 	private final String POST_CONTENT_TYPE = "text/html; charset=utf-8";
 	
 	@Autowired
-	private TransacaoService service;
+	private TerminalService service;
 
 	@GetMapping
 	public ResponseEntity<String> helloWorld(){
@@ -33,20 +36,25 @@ public class TransacaoController {
 	
 	@PostMapping(consumes= POST_CONTENT_TYPE, 
 			     produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Transacao> create(@RequestBody String transactionString){
-		System.out.println(transactionString);
-		return ResponseEntity.badRequest().build();
+	public ResponseEntity<TerminalDTO> create(@RequestBody String transactionString){
+		TerminalDTO dto = null;
+		try {
+			dto = new TerminalDTO(transactionString);
+		} catch (ValidationException e) {
+			return ResponseEntity.badRequest().build();
+		}
+		return ResponseEntity.ok(dto);
 	}
 	
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Transacao> findById(@PathVariable Integer id){
+	public ResponseEntity<Terminal> findById(@PathVariable Integer id){
 		if (id.intValue() <= 0) {
 			//TODO criar padrão de retorno de erro
 			return ResponseEntity.badRequest().build();
 		}
 		
-		Transacao ret = this.service.findById(id);
+		Terminal ret = this.service.findById(id);
 		if (ret == null) {
 			return ResponseEntity.notFound().build();
 		}

@@ -14,9 +14,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import io.restassured.http.ContentType;
-import tech.dock.desafio.controller.TransacaoController;
-import tech.dock.desafio.model.Transacao;
-import tech.dock.desafio.service.TransacaoService;
+import tech.dock.desafio.controller.TerminalController;
+import tech.dock.desafio.model.Terminal;
+import tech.dock.desafio.service.TerminalService;
 
 @WebMvcTest
 public class TransacaoControllerTest {
@@ -26,10 +26,10 @@ public class TransacaoControllerTest {
 	private final String URL_RESOURCE = PREFIXO_VERSAO + RESOURCE;
 	
 	@Autowired
-	private TransacaoController controller;
+	private TerminalController controller;
 	
 	@MockBean
-	private TransacaoService transacaoService;
+	private TerminalService terminalService;
 	
 	@BeforeEach
 	public void setup() {
@@ -52,8 +52,8 @@ public class TransacaoControllerTest {
 	@Test
 	public void deveRetornarSucesso_QuandoProcurarPorId() {
 		
-		when(this.transacaoService.findById(1))
-			.thenReturn(new Transacao());
+		when(this.terminalService.findById(1))
+			.thenReturn(new Terminal());
 		
 		given()
 			.accept(ContentType.JSON)
@@ -66,7 +66,7 @@ public class TransacaoControllerTest {
 	@Test
 	public void deveRetornarNaoEncontrado_QuandoProcurarPorId() {
 		
-		when(this.transacaoService.findById(3))
+		when(this.terminalService.findById(3))
 			.thenReturn(null);
 		
 		given()
@@ -87,7 +87,7 @@ public class TransacaoControllerTest {
 		.then()
 			.statusCode(HttpStatus.BAD_REQUEST.value());
 		
-		verify(this.transacaoService, never()).findById(-1);
+		verify(this.terminalService, never()).findById(-1);
 		
 	}
 
