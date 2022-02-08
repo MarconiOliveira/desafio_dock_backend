@@ -1,8 +1,11 @@
-package tech.dock.desafio.validators;
+package tech.dock.desafio.validator;
 
-import javax.validation.ValidationException;
+import tech.dock.desafio.exceptions.ValidacaoException;
 
 public class TerminalStringValidator implements AppValidator<String>{
+	
+	private final String MESSAGE_TS_INVALIDO = "STRING_DE_TERMINAL_INVALIDA";
+	private final String MESSAGE_TS_NULO = "A_STRING_DE_TERMINAL_NAO_PODE_SER_NULA";
 	
 	public enum TsTypes {
 		STRING {
@@ -42,7 +45,7 @@ public class TerminalStringValidator implements AppValidator<String>{
 		public abstract boolean isValid(String test);
 	};
 	
-	private final String MESSAGE_TS_INVALIDO = "String de terminal inválida";
+	
 	
 	
 	private final TsTypes[] PARTS_TYPE = new TsTypes[] {
@@ -58,26 +61,38 @@ public class TerminalStringValidator implements AppValidator<String>{
 		TsTypes.STRING		//PVERFM
 	};
 	
+	@Override
+	public boolean isValid(String ts) {
+		try {
+			this.validate(ts);
+			return true;
+		}catch (ValidacaoException e) {
+			return false;
+		}
+	}
+	
 
-	public void validate(String ts) throws ValidationException {
+	public void validate(String ts) {
 		if (ts==null) {
-			throw new ValidationException("A string de terminal não pode ser nula");
+			throw new ValidacaoException(MESSAGE_TS_NULO);
 		}
 		
+		ts = ts + " ";
 		String[] parts = ts.split(";");
+		
 		if (parts.length != 10) {
-			throw new ValidationException(MESSAGE_TS_INVALIDO);
+			throw new ValidacaoException(MESSAGE_TS_INVALIDO);
 		}
 		
-		//old school
 		for (int x=0; x<parts.length; x++) {
 			
 			if (!PARTS_TYPE[x].isValid(parts[x])) {
-				throw new ValidationException(MESSAGE_TS_INVALIDO);
+				throw new ValidacaoException(MESSAGE_TS_INVALIDO);
 			}
 			
 		}//for
 		
 	}
+
 		
 }

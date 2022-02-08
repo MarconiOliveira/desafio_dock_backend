@@ -1,34 +1,37 @@
 package tech.dock.desafio.dto;
 
 
-import javax.validation.ValidationException;
+import javax.validation.ValidationException; 
+import javax.validation.constraints.NotBlank;
+
+import org.modelmapper.ModelMapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import tech.dock.desafio.json.deserializable.IntToHexaStringDeserializer;
 import tech.dock.desafio.json.serializable.IntToHexaStringSerializer;
 import tech.dock.desafio.model.Terminal;
-import tech.dock.desafio.validators.TransacaoDTOSchemaValidator;
-import tech.dock.desafio.validators.TerminalStringValidator;
+import tech.dock.desafio.validator.TerminalStringValidator;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class TerminalDTO {
 	
 	private Integer logic;
 	private String serial;
+	
+	@NotBlank
 	private String model;
 	private Integer sam;
 	
 	@JsonSerialize(using = IntToHexaStringSerializer.class)
 	@JsonDeserialize(using = IntToHexaStringDeserializer.class)
 	private Integer ptid;
+	
 	private Integer plat;
 	private String version;
 	private Integer mxr;
@@ -37,12 +40,21 @@ public class TerminalDTO {
 	@JsonProperty("PVERFM")
 	private String pverfm;
 	
-	public TerminalDTO(String transactionString) throws ValidationException {
+	public TerminalDTO(String terminalString) throws ValidationException {
 		
 		TerminalStringValidator tsValidator = new TerminalStringValidator();
-		tsValidator.validate(transactionString);
+		tsValidator.validate(terminalString);
 		
-		String[] parts = transactionString.split(";");
+		this.parse(terminalString);	
+		
+	}
+	
+	private void parse(String terminalString) {
+		
+		//Evitando que a última parte seja nula
+		terminalString = terminalString + " "; 
+		String[] parts = terminalString.split(";");
+		
 		
 		this.logic = this.parseInt(parts[0]);
 		this.serial = this.parseString(parts[1]);
@@ -54,10 +66,6 @@ public class TerminalDTO {
 		this.mxr = this.parseInt(parts[7]);
 		this.mxf = this.parseInt(parts[8]);
 		this.pverfm = this.parseString(parts[9]);
-		
-		TransacaoDTOSchemaValidator sValidator = new TransacaoDTOSchemaValidator();
-		sValidator.validate(this);
-
 	}
 	
 	private Integer parseInt(String part) {
@@ -78,8 +86,9 @@ public class TerminalDTO {
 	
 	public static void main(String[] args) {
 		try {
-			TerminalDTO dto = new TerminalDTO("44332211;123;PWWIN;0;2E4088B;4;8.00b3;0;16777216;PWWIN"); //F04A2E4088B
-			System.out.println(dto.toString());
+			TerminalDTO dto = new TerminalDTO(";123;PWWIN;0;2E4088B;4;8.00b3;0;16777216;"); //F04A2E4088B
+			
+			System.out.println(dto);
 		} catch (ValidationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -87,20 +96,16 @@ public class TerminalDTO {
 	}
 	
 	public Terminal toModel() {
-		Terminal m = new Terminal();
-		
-		m.setId(this.logic);
-		m.setSerial(this.serial);
-		m.setModel(this.model);
-		m.setSam(this.sam);
-		m.setPtId(this.ptid);
-		m.setPlat(this.plat);
-		m.setVersion(this.version);
-		m.setMxr(this.mxr);
-		m.setMxf(this.mxf);
-		m.setPverfm(this.pverfm);
+		ModelMapper mm = new ModelMapper();
+		Terminal model = mm.map(this, Terminal.class);
+		return model;
+	}
 	
-		return m;
+	public static TerminalDTO build(Terminal model) {
+		ModelMapper mm = new ModelMapper();
+		TerminalDTO dto = mm.map(model, TerminalDTO.class);
+		
+		return dto;
 	}
 
 }

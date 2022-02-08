@@ -9,13 +9,13 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "tb_terminal")
 @Entity
 public class Terminal {
@@ -23,7 +23,7 @@ public class Terminal {
 	@Id
 	@NotNull
 	@Column(name="id")
-	private Integer id;
+	private Integer logic;
 
 	@NotNull
 	@Length(max = 20)
@@ -59,5 +59,32 @@ public class Terminal {
 	@Length(max = 20)
 	@Column(name="pverfm")
 	private String pverfm;
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((logic == null) ? 0 : logic.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Terminal other = (Terminal) obj;
+		if (this.getLogic() == null) {
+			if (other.getLogic() != null)
+				return false;
+		} else if (!getLogic().equals(getLogic()))
+			return false;
+		return true;
+	}
+
+	
 
 }
