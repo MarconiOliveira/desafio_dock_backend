@@ -1,6 +1,7 @@
 package tech.dock.desafio.controller;
 
-import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tech.dock.desafio.dto.TerminalDTO;
+import tech.dock.desafio.exceptions.ValidacaoException;
 import tech.dock.desafio.model.Terminal;
 import tech.dock.desafio.service.TerminalService;
 import tech.dock.desafio.validator.TerminalDTOSchemaValidator;
@@ -28,13 +30,11 @@ public class TerminalController {
 	 */
 	private final String POST_CONTENT_TYPE = MediaType.TEXT_HTML_VALUE;// "text/html; charset=utf-8";
 	
+	private final String MSG_ERRO_ID_PUT = "ID_NAO_CORRESPONDE_AO_CAMPO_LOGIC_DA_ENTIDADE";
+	
 	@Autowired
 	private TerminalService service;
 
-	@GetMapping
-	public ResponseEntity<String> helloWorld(){
-		return ResponseEntity.ok().body("Olá mundo");
-	}
 	
 	@PostMapping(consumes= POST_CONTENT_TYPE, 
 			     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,8 +50,15 @@ public class TerminalController {
 	}
 	
 	@PutMapping(path = "/{id}")
-	public ResponseEntity<TerminalDTO> update(@PathVariable Integer id, @Valid @RequestBody TerminalDTO dto){
-		return ResponseEntity.ok(dto);		
+	public ResponseEntity<TerminalDTO> update(@PathVariable(required = true) Integer id, @RequestBody TerminalDTO dto){
+		this.preSave(dto);
+		
+		if (!id.equals(dto.getLogic())) {
+			throw new ValidacaoException(MSG_ERRO_ID_PUT);
+		}
+		Terminal terminal = this.service.update(dto.toModel());
+		
+		return ResponseEntity.ok(TerminalDTO.build(terminal));
 	}
 	
 	@GetMapping("/{id}")
@@ -65,6 +72,19 @@ public class TerminalController {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok().body(TerminalDTO.build(terminal));
+	}
+	
+	@GetMapping
+	public ResponseEntity<List<TerminalDTO>> findAll(){
+		List<Terminal> rs = this.service.findAll();
+		
+		List<TerminalDTO> ret = new ArrayList<TerminalDTO>();
+		for (Terminal terminal : rs) {
+			ret.add(TerminalDTO.build(terminal));
+		}
+		
+		return ResponseEntity.ok().body(ret);
+		
 	}
 	
 	private void preSave(TerminalDTO dto) {

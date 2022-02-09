@@ -84,17 +84,6 @@ public class TerminalDTO {
 		return ret;
 	}
 	
-	public static void main(String[] args) {
-		try {
-			TerminalDTO dto = new TerminalDTO(";123;PWWIN;0;2E4088B;4;8.00b3;0;16777216;"); //F04A2E4088B
-			
-			System.out.println(dto);
-		} catch (ValidationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	public Terminal toModel() {
 		ModelMapper mm = new ModelMapper();
 		Terminal model = mm.map(this, Terminal.class);
